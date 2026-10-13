@@ -42,6 +42,14 @@ def merge_intervals(intervals):
     '''
     def key(interval):
         return interval[0]
+    ordered = sorted(intervals, key=key)
+    out = []
+    for interval in ordered:
+        if len(out) == 0 or interval[0] > out[-1][1]:
+            out.append(interval[:])
+        else:
+            out[-1][1] = max(out[-1][1], interval[1])
+    return out
 
 
 def rank_teams(votes):
@@ -79,6 +87,16 @@ def rank_teams(votes):
     def key(team):
         # negated counts sort descending; the letter breaks ties
         return tuple(-n for n in counts[team]) + (team,)
+    if len(votes) == 0:
+        return ''
+    for team in votes[0]:
+        counts[team] = [0] * len(votes[0])
+    for vote in votes:
+        for i in range(len(vote)):
+            team = vote[i]
+            counts[team][i] += 1
+    ordered = sorted(counts, key=key)
+    return ''.join(ordered)
 
 
 def largest_number(nums):
@@ -107,6 +125,13 @@ def largest_number(nums):
         if a + b > b + a:
             return -1
         return 1 if b + a > a + b else 0
+    import functools
+    xs = [str(num) for num in nums]
+    zs = sorted(xs, key=functools.cmp_to_key(cmp))
+    result = ''.join(zs)
+    if result.startswith('0'):
+        return '0'
+    return result
 
 
 def two_city_sched_cost(costs):
@@ -136,3 +161,11 @@ def two_city_sched_cost(costs):
     '''
     def key(cost):
         return cost[0] - cost[1]
+    zs = sorted(costs, key=key)
+    n = len(costs) // 2
+    total = 0
+    for cost in costs:
+        total += cost[1]
+    for cost in zs[:n]:
+        total += key(cost)
+    return total
